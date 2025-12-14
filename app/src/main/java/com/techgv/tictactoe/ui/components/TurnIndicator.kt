@@ -18,8 +18,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.DarkGreen600
@@ -71,7 +73,7 @@ fun TurnIndicator(
 
         // Turn text
         Text(
-            text = "${displayName.uppercase()}'S TURN",
+            text = stringResource(R.string.turn_indicator, displayName.uppercase()),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = currentPlayer.color

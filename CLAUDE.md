@@ -26,19 +26,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-This is an Android app using Jetpack Compose for UI, built with Kotlin DSL Gradle scripts.
+Android Tic Tac Toe game using Jetpack Compose with Material 3, built with Kotlin DSL Gradle scripts.
 
 - **Package**: `com.techgv.tictactoe`
-- **Min SDK**: 24 (Android 7.0)
-- **Target SDK**: 36
+- **Min SDK**: 24, **Target SDK**: 36
 - **UI Framework**: Jetpack Compose with Material 3
-- **Theme**: Supports dynamic colors on Android 12+ with fallback to custom light/dark color schemes
+- **State Management**: ViewModel + StateFlow
+- **Persistence**: DataStore Preferences
 
-### Project Structure
+### Key Architectural Patterns
 
-- `app/src/main/java/com/techgv/tictactoe/` - Main application code
-  - `MainActivity.kt` - Entry point activity using Compose
-  - `ui/theme/` - Material 3 theming (Color, Theme, Type)
-- `app/src/test/` - Unit tests (JUnit 4)
-- `app/src/androidTest/` - Instrumented tests (Espresso)
-- `gradle/libs.versions.toml` - Centralized dependency version catalog
+**Navigation Flow**: `Splash → GameMode → Game ↔ Settings`
+- Navigation defined in `ui/navigation/NavGraph.kt` using Compose Navigation
+- Screen routes defined as sealed class in `ui/navigation/Screen.kt`
+
+**Data Layer**:
+- `data/repository/StatsRepository.kt` - Persists game statistics (wins, draws, streaks) via DataStore
+- `data/repository/SettingsRepository.kt` - Persists user preferences (sound, haptics, player names) via DataStore
+- Models in `data/model/` - `GameState`, `GameResult`, `GameStats`, `GameSettings`, `Player`
+
+**Domain Layer**:
+- `domain/GameLogic.kt` - Pure game logic as an object: win detection, move validation, board state management
+
+**UI Layer**:
+- ViewModels use `AndroidViewModel` with `StateFlow` for UI state
+- `GameViewModel` manages game state, coordinates with repositories, delegates logic to `GameLogic`
+- Reusable components in `ui/components/`: `GameBoard`, `GameCell`, `ScoreBoard`, `ResultDialog`, etc.
+
+### Game State Model
+
+The board is represented as `List<Player>` with 9 elements (indices 0-8), where `Player` is an enum (`X`, `O`, `NONE`). `GameResult` is a sealed class: `Win(winner, winningLine)`, `Draw`, or `InProgress`.

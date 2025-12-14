@@ -1,3 +1,47 @@
 <resources>
     <string name="app_name">Tic Tac Toe</string>
+
+    <!-- Navigation -->
+    <string name="back">Back</string>
+    <string name="settings">Settings</string>
+
+    <!-- Game Screen -->
+    <string name="reset_game">Reset Game</string>
+
+    <!-- Settings Screen -->
+    <string name="section_game_experience">GAME EXPERIENCE</string>
+    <string name="sound_effects">Sound Effects</string>
+    <string name="sound_effects_subtitle">In-game audio</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="haptic_feedback_subtitle">Vibrate on moves</string>
+    <string name="section_player_customization">PLAYER CUSTOMIZATION</string>
+    <string name="player_x_label">Player 1 (X)</string>
+    <string name="player_o_label">Player 2 (O)</string>
+
+    <!-- Game Mode Screen -->
+    <string name="choose_game_mode">Choose Game Mode</string>
+    <string name="select_opponent">Select your opponent</string>
+    <string name="pvp_title">Player vs Player</string>
+    <string name="pvp_subtitle">Local multiplayer</string>
+    <string name="pva_title">Player vs AI</string>
+    <string name="pva_subtitle">Challenge the computer</string>
+
+    <!-- Splash Screen -->
+    <string name="loading">LOADING…</string>
+
+    <!-- Result Dialog -->
+    <string name="winner_title">%1$s Wins!</string>
+    <string name="draw_title">It\'s a Draw!</string>
+    <string name="win_subtitle_with_time">Great game! Fastest win: %1$ds</string>
+    <string name="win_subtitle">Great game!</string>
+    <string name="draw_subtitle">Well played by both!</string>
+    <string name="play_again">Play Again</string>
+    <string name="exit_game">Exit Game</string>
+
+    <!-- Mode Selection Card -->
+    <string name="coming_soon">COMING SOON</string>
+    <string name="start">START</string>
+
+    <!-- Turn Indicator -->
+    <string name="turn_indicator">%1$s\'S TURN</string>
 </resources>

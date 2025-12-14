@@ -29,8 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.techgv.tictactoe.R
 import com.techgv.tictactoe.ui.theme.BadgeShape
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.CardShape
@@ -135,7 +137,7 @@ private fun ComingSoonBadge(modifier: Modifier = Modifier) {
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Text(
-            text = "COMING SOON",
+            text = stringResource(R.string.coming_soon),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
             color = TextMuted
@@ -158,7 +160,7 @@ private fun StartButton(
         )
     ) {
         Text(
-            text = "START",
+            text = stringResource(R.string.start),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold
         )

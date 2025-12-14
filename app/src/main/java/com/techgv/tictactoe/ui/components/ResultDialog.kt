@@ -36,8 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.GameResult
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.ui.theme.ButtonShape
@@ -148,8 +150,8 @@ private fun ResultCard(
             else -> ""
         }
         val title = when (gameResult) {
-            is GameResult.Win -> "$winnerName Wins!"
-            is GameResult.Draw -> "It's a Draw!"
+            is GameResult.Win -> stringResource(R.string.winner_title, winnerName)
+            is GameResult.Draw -> stringResource(R.string.draw_title)
             else -> ""
         }
         Text(
@@ -165,12 +167,12 @@ private fun ResultCard(
         val subtitle = when (gameResult) {
             is GameResult.Win -> {
                 if (winDurationSeconds != null) {
-                    "Great game! Fastest win: ${winDurationSeconds}s"
+                    stringResource(R.string.win_subtitle_with_time, winDurationSeconds)
                 } else {
-                    "Great game!"
+                    stringResource(R.string.win_subtitle)
                 }
             }
-            is GameResult.Draw -> "Well played by both!"
+            is GameResult.Draw -> stringResource(R.string.draw_subtitle)
             else -> ""
         }
         Text(
@@ -201,7 +203,7 @@ private fun ResultCard(
             )
             Spacer(modifier = Modifier.size(8.dp))
             Text(
-                text = "Play Again",
+                text = stringResource(R.string.play_again),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -220,7 +222,7 @@ private fun ResultCard(
             )
         ) {
             Text(
-                text = "Exit Game",
+                text = stringResource(R.string.exit_game),
                 style = MaterialTheme.typography.labelLarge
             )
         }

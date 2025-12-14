@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -27,20 +27,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.techgv.tictactoe.R
+import org.koin.androidx.compose.koinViewModel
 import com.techgv.tictactoe.data.model.GameResult
-import com.techgv.tictactoe.ui.components.BottomNavBar
 import com.techgv.tictactoe.ui.components.GameBoard
-import com.techgv.tictactoe.ui.components.NavItem
+import kotlinx.coroutines.delay
 import com.techgv.tictactoe.ui.components.ResultDialog
 import com.techgv.tictactoe.ui.components.ScoreBoard
 import com.techgv.tictactoe.ui.components.TurnIndicator
@@ -55,10 +59,8 @@ import com.techgv.tictactoe.util.SoundManager
 @Composable
 fun GameScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToStats: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToHome: () -> Unit,
-    viewModel: GameViewModel = viewModel()
+    viewModel: GameViewModel = koinViewModel()
 ) {
     val gameState by viewModel.gameState.collectAsState()
     val settings by viewModel.settings.collectAsState()
@@ -74,12 +76,35 @@ fun GameScreen(
         }
     }
 
+    // State to control when to show the result dialog
+    var showResultDialog by remember { mutableStateOf(false) }
+
+    // Delay showing dialog for wins (wait for win line animation)
+    LaunchedEffect(gameState.isGameOver, gameState.gameResult) {
+        if (gameState.isGameOver) {
+            when (gameState.gameResult) {
+                is GameResult.Win -> {
+                    delay(550) // Wait for 500ms win line animation + small buffer
+                    showResultDialog = true
+                }
+                is GameResult.Draw -> {
+                    showResultDialog = true // Show immediately for draws
+                }
+                else -> {
+                    showResultDialog = false
+                }
+            }
+        } else {
+            showResultDialog = false
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Tic Tac Toe",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
@@ -88,16 +113,16 @@ fun GameScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = TextSecondary
                         )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Menu options */ }) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Menu",
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings),
                             tint = TextSecondary
                         )
                     }
@@ -106,18 +131,6 @@ fun GameScreen(
                     containerColor = Color.Transparent
                 ),
                 modifier = Modifier.statusBarsPadding()
-            )
-        },
-        bottomBar = {
-            BottomNavBar(
-                selectedItem = NavItem.HOME,
-                onItemSelected = { item ->
-                    when (item) {
-                        NavItem.HOME -> onNavigateToHome()
-                        NavItem.STATS -> onNavigateToStats()
-                        NavItem.SETTINGS -> onNavigateToSettings()
-                    }
-                }
             )
         },
         containerColor = Color.Transparent
@@ -189,7 +202,7 @@ fun GameScreen(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "Reset Game",
+                        text = stringResource(R.string.reset_game),
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
@@ -199,7 +212,7 @@ fun GameScreen(
 
             // Result dialog overlay
             ResultDialog(
-                visible = gameState.isGameOver,
+                visible = showResultDialog,
                 gameResult = gameState.gameResult,
                 winDurationSeconds = gameState.lastWinDuration,
                 onPlayAgain = { viewModel.resetGame() },

@@ -4,9 +4,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +40,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlin.random.Random
+import com.techgv.tictactoe.BuildConfig
+import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.ui.components.OMark
 import com.techgv.tictactoe.ui.components.XMark
@@ -115,7 +124,7 @@ fun SplashScreen(
 
             // Title
             Text(
-                text = "Tic Tac Toe",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.alpha(titleAlpha.value)
@@ -153,7 +162,7 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "LOADING...",
+                    text = stringResource(R.string.loading),
                     style = MaterialTheme.typography.labelMedium,
                     color = GreenAccent,
                     letterSpacing = 2.sp
@@ -164,7 +173,7 @@ fun SplashScreen(
 
             // Version number
             Text(
-                text = "v1.2.0",
+                text = "v${BuildConfig.VERSION_NAME}",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
@@ -176,12 +185,25 @@ fun SplashScreen(
 
 @Composable
 private fun MiniGameBoard(modifier: Modifier = Modifier) {
-    // Sample board state for splash screen preview
-    val sampleBoard = listOf(
-        Player.NONE, Player.X, Player.NONE,
-        Player.NONE, Player.O, Player.X,
-        Player.NONE, Player.NONE, Player.NONE
-    )
+    // Mutable board state - starts empty
+    val boardState = remember { mutableStateListOf(*Array(9) { Player.NONE }) }
+
+    // Animation to randomly fill cells one by one
+    LaunchedEffect(Unit) {
+        val availableIndices = (0..8).toMutableList()
+
+        // Fill cells one by one with delays
+        while (availableIndices.isNotEmpty()) {
+            delay(250L) // Delay between each cell animation
+
+            // Pick random empty cell
+            val randomIndex = availableIndices.random()
+            availableIndices.remove(randomIndex)
+
+            // Randomly choose X or O
+            boardState[randomIndex] = if (Random.nextBoolean()) Player.X else Player.O
+        }
+    }
 
     Box(
         modifier = modifier
@@ -207,7 +229,7 @@ private fun MiniGameBoard(modifier: Modifier = Modifier) {
                     for (col in 0..2) {
                         val index = row * 3 + col
                         MiniCell(
-                            player = sampleBoard[index],
+                            player = boardState[index],
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -222,6 +244,16 @@ private fun MiniCell(
     player: Player,
     modifier: Modifier = Modifier
 ) {
+    // Scale animation for pop effect
+    val scale by animateFloatAsState(
+        targetValue = if (player != Player.NONE) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "cell_pop"
+    )
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -241,6 +273,10 @@ private fun MiniCell(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
             )
             Player.O -> OMark(
                 color = CoralAccent,
@@ -248,6 +284,10 @@ private fun MiniCell(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
             )
             Player.NONE -> { /* Empty */ }
         }

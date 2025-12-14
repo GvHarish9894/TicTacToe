@@ -1,20 +1,17 @@
 package com.techgv.tictactoe.ui.screens.settings
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.techgv.tictactoe.data.model.GameSettings
 import com.techgv.tictactoe.data.repository.SettingsRepository
-import com.techgv.tictactoe.data.repository.StatsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val settingsRepository = SettingsRepository(application)
-    private val statsRepository = StatsRepository(application)
+class SettingsViewModel(
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
 
     val settings: StateFlow<GameSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
@@ -43,13 +40,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun updatePlayerOName(name: String) {
         viewModelScope.launch {
             settingsRepository.updatePlayerOName(name)
-        }
-    }
-
-    fun resetAllData() {
-        viewModelScope.launch {
-            statsRepository.resetStats()
-            settingsRepository.resetSettings()
         }
     }
 }

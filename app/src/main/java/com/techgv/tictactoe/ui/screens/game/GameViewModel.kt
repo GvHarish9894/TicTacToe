@@ -1,15 +1,12 @@
 package com.techgv.tictactoe.ui.screens.game
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.techgv.tictactoe.data.model.GameResult
 import com.techgv.tictactoe.data.model.GameSettings
 import com.techgv.tictactoe.data.model.GameState
-import com.techgv.tictactoe.data.model.GameStats
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.data.repository.SettingsRepository
-import com.techgv.tictactoe.data.repository.StatsRepository
 import com.techgv.tictactoe.domain.GameLogic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,21 +14,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val statsRepository = StatsRepository(application)
-    private val settingsRepository = SettingsRepository(application)
+class GameViewModel(
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
 
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
-
-    val stats: StateFlow<GameStats> = statsRepository.gameStats.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = GameStats()
-    )
 
     val settings: StateFlow<GameSettings> = settingsRepository.settings.stateIn(
         scope = viewModelScope,
@@ -65,6 +54,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 Player.O -> currentState.scoreX to currentState.scoreO + 1
                 Player.NONE -> currentState.scoreX to currentState.scoreO
             }
+
             else -> currentState.scoreX to currentState.scoreO
         }
 
@@ -82,25 +72,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 lastWinDuration = duration
             )
         }
-
-        // Record stats
-        when (gameResult) {
-            is GameResult.Win -> {
-                viewModelScope.launch {
-                    statsRepository.recordWin(
-                        winner = gameResult.winner,
-                        durationSeconds = duration ?: 0,
-                        currentStats = stats.value
-                    )
-                }
-            }
-            is GameResult.Draw -> {
-                viewModelScope.launch {
-                    statsRepository.recordDraw(stats.value)
-                }
-            }
-            else -> { /* Game still in progress */ }
-        }
     }
 
     fun resetGame() {
@@ -113,9 +84,5 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 lastWinDuration = null
             )
         }
-    }
-
-    fun resetAll() {
-        _gameState.value = GameState()
     }
 }

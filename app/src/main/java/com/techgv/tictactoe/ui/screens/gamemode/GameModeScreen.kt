@@ -21,10 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.techgv.tictactoe.ui.components.BottomNavBar
+import com.techgv.tictactoe.R
 import com.techgv.tictactoe.ui.components.ModeSelectionCard
-import com.techgv.tictactoe.ui.components.NavItem
 import com.techgv.tictactoe.ui.components.PlayerVsAIIcon
 import com.techgv.tictactoe.ui.components.PlayerVsPlayerIcon
 import com.techgv.tictactoe.ui.theme.DarkGreen800
@@ -38,27 +38,11 @@ enum class GameMode {
 
 @Composable
 fun GameModeScreen(
-    onStartGame: () -> Unit,
-    onNavigateToStats: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onStartGame: () -> Unit
 ) {
     var selectedMode by remember { mutableStateOf(GameMode.PLAYER_VS_PLAYER) }
 
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                selectedItem = NavItem.HOME,
-                onItemSelected = { item ->
-                    when (item) {
-                        NavItem.HOME -> { /* Already here */ }
-                        NavItem.STATS -> onNavigateToStats()
-                        NavItem.SETTINGS -> onNavigateToSettings()
-                    }
-                }
-            )
-        },
-        containerColor = Color.Transparent
-    ) { paddingValues ->
+    Scaffold(containerColor = Color.Transparent) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,7 +60,7 @@ fun GameModeScreen(
 
             // Title
             Text(
-                text = "Choose Game Mode",
+                text = stringResource(R.string.choose_game_mode),
                 style = MaterialTheme.typography.headlineLarge,
                 color = Color.White
             )
@@ -85,7 +69,7 @@ fun GameModeScreen(
 
             // Subtitle
             Text(
-                text = "Select your opponent",
+                text = stringResource(R.string.select_opponent),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary
             )
@@ -99,8 +83,8 @@ fun GameModeScreen(
             ) {
                 // Player vs Player
                 ModeSelectionCard(
-                    title = "Player vs Player",
-                    subtitle = "Local multiplayer",
+                    title = stringResource(R.string.pvp_title),
+                    subtitle = stringResource(R.string.pvp_subtitle),
                     icon = { PlayerVsPlayerIcon() },
                     isSelected = selectedMode == GameMode.PLAYER_VS_PLAYER,
                     isEnabled = true,
@@ -112,8 +96,8 @@ fun GameModeScreen(
 
                 // Player vs AI
                 ModeSelectionCard(
-                    title = "Player vs AI",
-                    subtitle = "Challenge the computer",
+                    title = stringResource(R.string.pva_title),
+                    subtitle = stringResource(R.string.pva_subtitle),
                     icon = { PlayerVsAIIcon() },
                     isSelected = selectedMode == GameMode.PLAYER_VS_AI,
                     isEnabled = false,
