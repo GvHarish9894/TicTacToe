@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Tic Tac Toe</string>
 
+    <!-- Attribution (empty tag for libraries using null/empty attribution) -->
+    <string name="empty_attribution_tag"></string>
+    <string name="attribution_label">Attribution</string>
+
     <!-- Navigation -->
     <string name="back">Back</string>
     <string name="settings">Settings</string>
@@ -44,4 +48,11 @@
 
     <!-- Turn Indicator -->
     <string name="turn_indicator">%1$s\'S TURN</string>
+
+    <!-- AI Configuration Dialog -->
+    <string name="ai_config_title">AI Settings</string>
+    <string name="select_difficulty">Difficulty</string>
+    <string name="who_goes_first">Who goes first?</string>
+    <string name="start_game">Start Game</string>
+    <string name="close">Close</string>
 </resources>

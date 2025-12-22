@@ -1,5 +1,6 @@
 package com.techgv.tictactoe
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,13 @@ import com.techgv.tictactoe.ui.theme.TicTacToeTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Lock phones to portrait, allow tablets to rotate
+        val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+        if (!isTablet) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         enableEdgeToEdge()
         setContent {
             TicTacToeTheme {

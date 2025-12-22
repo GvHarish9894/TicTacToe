@@ -1,7 +1,10 @@
 package com.techgv.tictactoe.di
 
+import com.techgv.tictactoe.data.model.AIDifficulty
+import com.techgv.tictactoe.data.model.FirstPlayer
 import com.techgv.tictactoe.data.repository.SettingsRepository
 import com.techgv.tictactoe.ui.screens.game.GameViewModel
+import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.screens.settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -12,6 +15,8 @@ val appModule = module {
     single { SettingsRepository(androidContext()) }
 
     // ViewModels - new instance per request
-    viewModel { GameViewModel(get()) }
+    viewModel { (gameMode: GameMode, aiDifficulty: AIDifficulty?, firstPlayer: FirstPlayer) ->
+        GameViewModel(get(), gameMode, aiDifficulty, firstPlayer)
+    }
     viewModel { SettingsViewModel(get()) }
 }
