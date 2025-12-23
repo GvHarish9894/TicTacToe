@@ -16,7 +16,12 @@ val appModule = module {
 
     // ViewModels - new instance per request
     viewModel { (gameMode: GameMode, aiDifficulty: AIDifficulty?, firstPlayer: FirstPlayer) ->
-        GameViewModel(get(), gameMode, aiDifficulty, firstPlayer)
+        GameViewModel(
+            settingsRepository = get(),
+            aiDifficulty = aiDifficulty,
+            gameMode = gameMode,
+            firstPlayer = firstPlayer
+        )
     }
     viewModel { SettingsViewModel(get()) }
 }

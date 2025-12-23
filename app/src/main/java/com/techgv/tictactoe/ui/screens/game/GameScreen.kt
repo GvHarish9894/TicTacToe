@@ -112,6 +112,10 @@ fun GameScreen(
         if (gameState.isGameOver) {
             when (gameState.gameResult) {
                 is GameResult.Win -> {
+                    // Play win sound immediately when win is detected
+                    if (settings.soundEnabled) {
+                        soundManager.playWinSound()
+                    }
                     delay(550) // Wait for 500ms win line animation + small buffer
                     viewModel.setShowResultDialog(true)
                 }

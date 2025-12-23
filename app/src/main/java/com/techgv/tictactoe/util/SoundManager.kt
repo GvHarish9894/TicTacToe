@@ -13,7 +13,9 @@ class SoundManager(context: Context) {
 
     private val soundPool: SoundPool
     private var clickSoundId: Int = 0
-    private var isLoaded: Boolean = false
+    private var winSoundId: Int = 0
+    private var clickSoundLoaded: Boolean = false
+    private var winSoundLoaded: Boolean = false
 
     init {
         // Build SoundPool with audio attributes for game sounds
@@ -29,13 +31,17 @@ class SoundManager(context: Context) {
 
         // Set load complete listener
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
-            if (status == 0 && sampleId == clickSoundId) {
-                isLoaded = true
+            if (status == 0) {
+                when (sampleId) {
+                    clickSoundId -> clickSoundLoaded = true
+                    winSoundId -> winSoundLoaded = true
+                }
             }
         }
 
-        // Load the click sound
+        // Load sounds
         clickSoundId = soundPool.load(context, R.raw.cell_click, 1)
+        winSoundId = soundPool.load(context, R.raw.win_sound, 1)
     }
 
     /**
@@ -43,9 +49,26 @@ class SoundManager(context: Context) {
      * @param volume Volume level from 0.0f to 1.0f (default: 1.0f)
      */
     fun playClickSound(volume: Float = 1.0f) {
-        if (isLoaded && clickSoundId != 0) {
+        if (clickSoundLoaded && clickSoundId != 0) {
             soundPool.play(
                 clickSoundId,
+                volume, // Left volume
+                volume, // Right volume
+                1, // Priority
+                0, // Loop (0 = no loop)
+                1.0f, // Playback rate (1.0 = normal)
+            )
+        }
+    }
+
+    /**
+     * Plays the win celebration sound effect.
+     * @param volume Volume level from 0.0f to 1.0f (default: 1.0f)
+     */
+    fun playWinSound(volume: Float = 1.0f) {
+        if (winSoundLoaded && winSoundId != 0) {
+            soundPool.play(
+                winSoundId,
                 volume, // Left volume
                 volume, // Right volume
                 1, // Priority
@@ -61,6 +84,7 @@ class SoundManager(context: Context) {
      */
     fun release() {
         soundPool.release()
-        isLoaded = false
+        clickSoundLoaded = false
+        winSoundLoaded = false
     }
 }
