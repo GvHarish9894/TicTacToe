@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
-
-    val settings: StateFlow<GameSettings> = settingsRepository.settings.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = GameSettings()
-    )
+    val settings: StateFlow<GameSettings> =
+        settingsRepository.settings.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = GameSettings(),
+        )
 
     fun updateSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {

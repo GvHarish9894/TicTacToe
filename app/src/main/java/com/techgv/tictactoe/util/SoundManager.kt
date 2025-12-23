@@ -46,11 +46,11 @@ class SoundManager(context: Context) {
         if (isLoaded && clickSoundId != 0) {
             soundPool.play(
                 clickSoundId,
-                volume,  // Left volume
-                volume,  // Right volume
-                1,       // Priority
-                0,       // Loop (0 = no loop)
-                1.0f     // Playback rate (1.0 = normal)
+                volume, // Left volume
+                volume, // Right volume
+                1, // Priority
+                0, // Loop (0 = no loop)
+                1.0f, // Playback rate (1.0 = normal)
             )
         }
     }

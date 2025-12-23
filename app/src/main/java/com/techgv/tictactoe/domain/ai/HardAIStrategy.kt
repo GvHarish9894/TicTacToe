@@ -47,9 +47,9 @@ class HardAIStrategy : AIStrategy {
         when (result) {
             is GameResult.Win -> {
                 return if (result.winner == aiPlayer) {
-                    10 - depth  // AI wins - prefer faster wins
+                    10 - depth // AI wins - prefer faster wins
                 } else {
-                    depth - 10  // Human wins - prefer slower losses
+                    depth - 10 // Human wins - prefer slower losses
                 }
             }
             is GameResult.Draw -> return 0

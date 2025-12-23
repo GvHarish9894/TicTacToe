@@ -2,9 +2,7 @@ package com.techgv.tictactoe.ui.components
 
 import android.content.Context
 import android.os.Build
-import android.os.VibrationEffect
 import android.os.Vibrator
-import android.os.VibratorManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,8 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -48,12 +44,12 @@ import com.techgv.tictactoe.ui.theme.GreenAccent
 fun GameCell(
     player: Player,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isWinningCell: Boolean = false,
     hapticEnabled: Boolean = false,
     soundEnabled: Boolean = false,
     onPlaySound: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isWinningCell) 1.05f else 1f,

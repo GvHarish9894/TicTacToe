@@ -22,11 +22,11 @@ fun GameBoard(
     board: List<Player>,
     winningLine: List<Int>?,
     onCellClick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     hapticEnabled: Boolean = false,
     soundEnabled: Boolean = false,
-    onPlaySound: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onPlaySound: () -> Unit = {}
 ) {
     Box(
         modifier = modifier

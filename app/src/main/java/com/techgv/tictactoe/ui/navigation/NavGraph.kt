@@ -18,8 +18,6 @@ import com.techgv.tictactoe.ui.screens.gamemode.GameModeScreen
 import com.techgv.tictactoe.ui.screens.settings.SettingsScreen
 import com.techgv.tictactoe.ui.screens.splash.SplashScreen
 
-private const val ANIMATION_DURATION = 300
-
 @Composable
 fun TicTacToeNavGraph(
     navController: NavHostController,
@@ -33,7 +31,7 @@ fun TicTacToeNavGraph(
         composable(
             route = Screen.Splash.route,
             exitTransition = {
-                fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                fadeOut(animationSpec = tween(AnimationDuration))
             }
         ) {
             SplashScreen(
@@ -49,18 +47,18 @@ fun TicTacToeNavGraph(
         composable(
             route = Screen.GameMode.route,
             enterTransition = {
-                fadeIn(animationSpec = tween(ANIMATION_DURATION))
+                fadeIn(animationSpec = tween(AnimationDuration))
             },
             exitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             popEnterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             }
         ) {
@@ -88,25 +86,25 @@ fun TicTacToeNavGraph(
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             exitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             popEnterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             popExitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             }
         ) { backStackEntry ->
@@ -135,19 +133,19 @@ fun TicTacToeNavGraph(
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             exitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             },
             popExitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(ANIMATION_DURATION)
+                    animationSpec = tween(AnimationDuration)
                 )
             }
         ) {
@@ -155,3 +153,5 @@ fun TicTacToeNavGraph(
         }
     }
 }
+
+private const val AnimationDuration = 300

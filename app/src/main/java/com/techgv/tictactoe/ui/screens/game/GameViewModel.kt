@@ -26,9 +26,9 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class GameViewModel(
-    private val settingsRepository: SettingsRepository,
+    settingsRepository: SettingsRepository,
+    aiDifficulty: AIDifficulty? = null,
     private val gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
-    private val aiDifficulty: AIDifficulty? = null,
     private val firstPlayer: FirstPlayer = FirstPlayer.HUMAN
 ) : ViewModel() {
 
@@ -40,16 +40,16 @@ class GameViewModel(
     private val _aiMoveEvent = MutableSharedFlow<Unit>()
     val aiMoveEvent: SharedFlow<Unit> = _aiMoveEvent.asSharedFlow()
 
-    val settings: StateFlow<GameSettings> = settingsRepository.settings.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = GameSettings()
-    )
+    val settings: StateFlow<GameSettings> =
+        settingsRepository.settings.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = GameSettings(),
+        )
 
     // AI configuration
     private val aiStrategy: AIStrategy? = aiDifficulty?.let { AIStrategyFactory.create(it) }
-    private val aiPlayer = Player.O  // AI always plays as O
-    private val humanPlayer = Player.X  // Human always plays as X
+    private val aiPlayer = Player.O // AI always plays as O
 
     init {
         // If AI goes first, trigger AI move
@@ -60,17 +60,18 @@ class GameViewModel(
 
     fun onCellClick(index: Int) {
         val currentGameState = _uiState.value.gameState
+        val isAITurn =
+            gameMode == GameMode.PLAYER_VS_AI && currentGameState.currentPlayer == aiPlayer
+        val isClickIgnored =
+            currentGameState.isGameOver ||
+                    !GameLogic.isValidMove(currentGameState.board, index)
 
         // Ignore clicks if:
         // - Game is over
         // - Cell is occupied
         // - AI is thinking
         // - It's AI's turn (in AI mode)
-        if (currentGameState.isGameOver ||
-            !GameLogic.isValidMove(currentGameState.board, index) ||
-            _uiState.value.isAIThinking ||
-            (gameMode == GameMode.PLAYER_VS_AI && currentGameState.currentPlayer == aiPlayer)
-        ) {
+        if (isClickIgnored || _uiState.value.isAIThinking || isAITurn) {
             return
         }
 

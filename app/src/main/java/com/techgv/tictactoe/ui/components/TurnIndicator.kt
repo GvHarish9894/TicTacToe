@@ -25,15 +25,14 @@ import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.DarkGreen600
-import com.techgv.tictactoe.ui.theme.TextPrimary
 import com.techgv.tictactoe.ui.theme.TurnIndicatorShape
 
 @Composable
 fun TurnIndicator(
     currentPlayer: Player,
+    modifier: Modifier = Modifier,
     playerXName: String = "Player X",
-    playerOName: String = "Player O",
-    modifier: Modifier = Modifier
+    playerOName: String = "Player O"
 ) {
     val dotColor by animateColorAsState(
         targetValue = currentPlayer.color,

@@ -37,11 +37,6 @@ import com.techgv.tictactoe.ui.theme.DarkGreen800
 import com.techgv.tictactoe.ui.theme.DarkGreen900
 import com.techgv.tictactoe.ui.theme.TextSecondary
 
-enum class GameMode {
-    PLAYER_VS_PLAYER,
-    PLAYER_VS_AI
-}
-
 @Composable
 fun GameModeScreen(
     onStartGame: (GameMode, AIDifficulty?, FirstPlayer?) -> Unit

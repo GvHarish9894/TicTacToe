@@ -3,12 +3,8 @@ package com.techgv.tictactoe.ui.screens.splash
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -23,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
@@ -43,7 +38,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
 import com.techgv.tictactoe.BuildConfig
 import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.Player
@@ -59,11 +53,10 @@ import com.techgv.tictactoe.ui.theme.GameCellShape
 import com.techgv.tictactoe.ui.theme.GreenAccent
 import com.techgv.tictactoe.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 @Composable
-fun SplashScreen(
-    onNavigateToGameMode: () -> Unit
-) {
+fun SplashScreen(onNavigateToGameMode: () -> Unit) {
     // Animation states
     val titleAlpha = remember { Animatable(0f) }
     val boardAlpha = remember { Animatable(0f) }
@@ -186,7 +179,8 @@ fun SplashScreen(
 @Composable
 private fun MiniGameBoard(modifier: Modifier = Modifier) {
     // Mutable board state - starts empty
-    val boardState = remember { mutableStateListOf(*Array(9) { Player.NONE }) }
+    val boardState =
+        remember { mutableStateListOf<Player>().apply { addAll(List(9) { Player.NONE }) } }
 
     // Animation to randomly fill cells one by one
     LaunchedEffect(Unit) {
@@ -295,4 +289,6 @@ private fun MiniCell(
 }
 
 private val Int.sp: androidx.compose.ui.unit.TextUnit
-    get() = androidx.compose.ui.unit.TextUnit(this.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp)
+    get() =
+        androidx.compose.ui.unit
+            .TextUnit(this.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp)

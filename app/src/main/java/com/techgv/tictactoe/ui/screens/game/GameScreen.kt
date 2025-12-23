@@ -39,9 +39,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -50,20 +50,20 @@ import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
 import com.techgv.tictactoe.data.model.GameResult
-import com.techgv.tictactoe.ui.screens.gamemode.GameMode
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 import com.techgv.tictactoe.ui.components.GameBoard
-import kotlinx.coroutines.delay
 import com.techgv.tictactoe.ui.components.ResultDialog
 import com.techgv.tictactoe.ui.components.ScoreBoard
 import com.techgv.tictactoe.ui.components.TurnIndicator
+import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.theme.ButtonShape
 import com.techgv.tictactoe.ui.theme.DarkGreen800
 import com.techgv.tictactoe.ui.theme.DarkGreen900
 import com.techgv.tictactoe.ui.theme.GreenAccent
 import com.techgv.tictactoe.ui.theme.TextSecondary
 import com.techgv.tictactoe.util.SoundManager
+import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +106,6 @@ fun GameScreen(
             }
         }
     }
-
 
     // Delay showing dialog for wins (wait for win line animation)
     LaunchedEffect(gameState.isGameOver, gameState.gameResult) {
