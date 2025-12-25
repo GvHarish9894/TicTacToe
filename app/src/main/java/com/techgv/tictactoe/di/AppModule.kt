@@ -7,7 +7,7 @@ import com.techgv.tictactoe.ui.screens.game.GameViewModel
 import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.screens.settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {

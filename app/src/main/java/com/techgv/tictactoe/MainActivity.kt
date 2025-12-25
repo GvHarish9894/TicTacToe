@@ -3,13 +3,16 @@ package com.techgv.tictactoe
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.compose.rememberNavController
 import com.techgv.tictactoe.ui.navigation.TicTacToeNavGraph
+import com.techgv.tictactoe.ui.theme.DarkGreen900
 import com.techgv.tictactoe.ui.theme.TicTacToeTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +25,10 @@ class MainActivity : ComponentActivity() {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(DarkGreen900.toArgb()),
+            navigationBarStyle = SystemBarStyle.dark(DarkGreen900.toArgb())
+        )
         setContent {
             TicTacToeTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
