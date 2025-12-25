@@ -19,8 +19,8 @@ import com.techgv.tictactoe.domain.WinLineType
 fun WinLine(
     winningLine: List<Int>,
     color: Color,
-    spacing: Dp = 8.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp
 ) {
     val progress = remember { Animatable(0f) }
 

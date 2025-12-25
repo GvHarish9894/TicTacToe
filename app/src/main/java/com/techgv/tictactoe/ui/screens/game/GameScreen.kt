@@ -68,11 +68,12 @@ import org.koin.core.parameter.parametersOf
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
+    onNavigateBack: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    modifier: Modifier = Modifier,
     gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
     aiDifficulty: AIDifficulty? = null,
     firstPlayer: FirstPlayer = FirstPlayer.HUMAN,
-    onNavigateBack: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     viewModel: GameViewModel = koinViewModel { parametersOf(gameMode, aiDifficulty, firstPlayer) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -140,6 +141,7 @@ fun GameScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {

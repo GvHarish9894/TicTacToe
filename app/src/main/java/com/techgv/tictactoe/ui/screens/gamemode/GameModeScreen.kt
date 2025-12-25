@@ -39,7 +39,8 @@ import com.techgv.tictactoe.ui.theme.TextSecondary
 
 @Composable
 fun GameModeScreen(
-    onStartGame: (GameMode, AIDifficulty?, FirstPlayer?) -> Unit
+    onStartGame: (GameMode, AIDifficulty?, FirstPlayer?) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var selectedMode by remember { mutableStateOf(GameMode.PLAYER_VS_PLAYER) }
     var showAIConfigDialog by rememberSaveable { mutableStateOf(false) }
@@ -49,7 +50,7 @@ fun GameModeScreen(
         showAIConfigDialog = false
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Scaffold(containerColor = Color.Transparent) { paddingValues ->
             Column(
                 modifier = Modifier

@@ -13,3 +13,10 @@ insert_final_newline = true
 ktlint_standard_function-naming = disabled
 # Disable property-naming rule - conflicts with detekt's TopLevelPropertyNaming
 ktlint_standard_property-naming = disabled
+
+# Compose rules (ktlint 1.0+)
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# Compose rules via io.nlopez.compose.rules:ktlint
+ktlint_compose_compositionlocal-allowlist = disabled
+ktlint_compose_material-two = disabled

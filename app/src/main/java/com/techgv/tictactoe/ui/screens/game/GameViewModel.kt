@@ -64,7 +64,7 @@ class GameViewModel(
             gameMode == GameMode.PLAYER_VS_AI && currentGameState.currentPlayer == aiPlayer
         val isClickIgnored =
             currentGameState.isGameOver ||
-                    !GameLogic.isValidMove(currentGameState.board, index)
+                !GameLogic.isValidMove(currentGameState.board, index)
 
         // Ignore clicks if:
         // - Game is over

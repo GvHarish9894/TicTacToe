@@ -27,7 +27,7 @@ fun GameBoard(
     enabled: Boolean = true,
     hapticEnabled: Boolean = false,
     soundEnabled: Boolean = false,
-    onPlaySound: () -> Unit = {}
+    onPlaySound: () -> Unit = {},
 ) {
     Box(
         modifier = modifier

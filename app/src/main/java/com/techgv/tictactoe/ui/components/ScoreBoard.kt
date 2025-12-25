@@ -21,9 +21,9 @@ import com.techgv.tictactoe.ui.theme.TextSecondary
 fun ScoreBoard(
     scoreX: Int,
     scoreO: Int,
+    modifier: Modifier = Modifier,
     playerXName: String = "Player X",
-    playerOName: String = "Player O",
-    modifier: Modifier = Modifier
+    playerOName: String = "Player O"
 ) {
     Row(
         modifier = modifier.padding(vertical = 8.dp),

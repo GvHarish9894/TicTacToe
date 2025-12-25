@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,7 +57,13 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 @Composable
-fun SplashScreen(onNavigateToGameMode: () -> Unit) {
+fun SplashScreen(
+    onNavigateToGameMode: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Capture latest lambda to avoid stale closure in LaunchedEffect
+    val currentOnNavigateToGameMode by rememberUpdatedState(onNavigateToGameMode)
+
     // Animation states
     val titleAlpha = remember { Animatable(0f) }
     val boardAlpha = remember { Animatable(0f) }
@@ -93,11 +100,11 @@ fun SplashScreen(onNavigateToGameMode: () -> Unit) {
         delay(300)
 
         // Navigate to game mode
-        onNavigateToGameMode()
+        currentOnNavigateToGameMode()
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
@@ -272,6 +279,7 @@ private fun MiniCell(
                         scaleY = scale
                     }
             )
+
             Player.O -> OMark(
                 color = CoralAccent,
                 strokeWidth = 6f,
@@ -283,7 +291,10 @@ private fun MiniCell(
                         scaleY = scale
                     }
             )
-            Player.NONE -> { /* Empty */ }
+
+            Player.NONE -> {
+                /* Empty */
+            }
         }
     }
 }
