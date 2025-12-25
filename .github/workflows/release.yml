@@ -3,15 +3,21 @@ name: Release
 on:
     workflow_dispatch:
         inputs:
-            version_name:
-                description: 'Version override (leave empty to use version from build.gradle.kts)'
-                required: false
-                type: string
+            bump_type:
+                description: 'Version bump type'
+                required: true
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
 
 jobs:
     release:
         name: Build and Release
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
 
         steps:
             -   name: Checkout code
@@ -26,11 +32,40 @@ jobs:
             -   name: Setup Gradle
                 uses: gradle/actions/setup-gradle@v4
 
-            -   name: Get version name
-                id: version
+            -   name: Get current version
+                id: current_version
                 run: |
                     VERSION_NAME=$(./gradlew -q :app:printVersionName)
                     echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+            -   name: Calculate new version
+                id: new_version
+                run: |
+                    CURRENT="${{ steps.current_version.outputs.version }}"
+                    IFS='.' read -r major minor patch <<< "$CURRENT"
+                    case "${{ inputs.bump_type }}" in
+                        major) major=$((major + 1)); minor=0; patch=0 ;;
+                        minor) minor=$((minor + 1)); patch=0 ;;
+                        patch) patch=$((patch + 1)) ;;
+                    esac
+                    echo "version=$major.$minor.$patch" >> $GITHUB_OUTPUT
+
+            -   name: Update version in build.gradle.kts
+                run: |
+                    # Update versionName
+                    sed -i 's/versionName = ".*"/versionName = "${{ steps.new_version.outputs.version }}"/' app/build.gradle.kts
+                    # Update versionCode (increment by 1)
+                    CURRENT_CODE=$(grep -oP 'versionCode = \K\d+' app/build.gradle.kts)
+                    NEW_CODE=$((CURRENT_CODE + 1))
+                    sed -i "s/versionCode = $CURRENT_CODE/versionCode = $NEW_CODE/" app/build.gradle.kts
+
+            -   name: Commit version bump
+                run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git add app/build.gradle.kts
+                    git commit -m "chore: bump version to ${{ steps.new_version.outputs.version }}"
+                    git push
 
             -   name: Decode Keystore
                 run: |
@@ -60,8 +95,8 @@ jobs:
             -   name: Create GitHub Release
                 uses: softprops/action-gh-release@v2
                 with:
-                    tag_name: v${{ inputs.version_name || steps.version.outputs.version }}
-                    name: Release v${{ inputs.version_name || steps.version.outputs.version }}
+                    tag_name: v${{ steps.new_version.outputs.version }}
+                    name: Release v${{ steps.new_version.outputs.version }}
                     generate_release_notes: true
                     files: |
                         app/build/outputs/apk/release/app-release.apk
