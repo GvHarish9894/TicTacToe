@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.techgv.tictactoe.domain.GameLogic
 import com.techgv.tictactoe.domain.WinLineType
 
@@ -17,6 +19,7 @@ import com.techgv.tictactoe.domain.WinLineType
 fun WinLine(
     winningLine: List<Int>,
     color: Color,
+    spacing: Dp = 8.dp,
     modifier: Modifier = Modifier
 ) {
     val progress = remember { Animatable(0f) }
@@ -32,43 +35,53 @@ fun WinLine(
     val winLineType = GameLogic.getWinLineType(winningLine)
 
     Canvas(modifier = modifier) {
-        val cellWidth = size.width / 3
-        val cellHeight = size.height / 3
-        val padding = cellWidth * 0.15f
+        val spacingPx = spacing.toPx()
+        val cellWidth = (size.width - 2 * spacingPx) / 3
+        val cellHeight = (size.height - 2 * spacingPx) / 3
+        val linePadding = cellWidth * 0.15f
         val strokeWidth = 8f
+
+        // Cell center positions accounting for spacing
+        val col0Center = cellWidth / 2
+        val col1Center = cellWidth + spacingPx + cellWidth / 2
+        val col2Center = 2 * (cellWidth + spacingPx) + cellWidth / 2
+
+        val row0Center = cellHeight / 2
+        val row1Center = cellHeight + spacingPx + cellHeight / 2
+        val row2Center = 2 * (cellHeight + spacingPx) + cellHeight / 2
 
         val (startOffset, endOffset) = when (winLineType) {
             WinLineType.ROW_TOP -> {
-                Offset(padding, cellHeight / 2) to
-                        Offset(size.width - padding, cellHeight / 2)
+                Offset(linePadding, row0Center) to
+                    Offset(size.width - linePadding, row0Center)
             }
             WinLineType.ROW_MIDDLE -> {
-                Offset(padding, size.height / 2) to
-                        Offset(size.width - padding, size.height / 2)
+                Offset(linePadding, row1Center) to
+                    Offset(size.width - linePadding, row1Center)
             }
             WinLineType.ROW_BOTTOM -> {
-                Offset(padding, size.height - cellHeight / 2) to
-                        Offset(size.width - padding, size.height - cellHeight / 2)
+                Offset(linePadding, row2Center) to
+                    Offset(size.width - linePadding, row2Center)
             }
             WinLineType.COLUMN_LEFT -> {
-                Offset(cellWidth / 2, padding) to
-                        Offset(cellWidth / 2, size.height - padding)
+                Offset(col0Center, linePadding) to
+                    Offset(col0Center, size.height - linePadding)
             }
             WinLineType.COLUMN_CENTER -> {
-                Offset(size.width / 2, padding) to
-                        Offset(size.width / 2, size.height - padding)
+                Offset(col1Center, linePadding) to
+                    Offset(col1Center, size.height - linePadding)
             }
             WinLineType.COLUMN_RIGHT -> {
-                Offset(size.width - cellWidth / 2, padding) to
-                        Offset(size.width - cellWidth / 2, size.height - padding)
+                Offset(col2Center, linePadding) to
+                    Offset(col2Center, size.height - linePadding)
             }
             WinLineType.DIAGONAL_MAIN -> {
-                Offset(padding, padding) to
-                        Offset(size.width - padding, size.height - padding)
+                Offset(linePadding, linePadding) to
+                    Offset(size.width - linePadding, size.height - linePadding)
             }
             WinLineType.DIAGONAL_ANTI -> {
-                Offset(size.width - padding, padding) to
-                        Offset(padding, size.height - padding)
+                Offset(size.width - linePadding, linePadding) to
+                    Offset(linePadding, size.height - linePadding)
             }
         }
 
