@@ -4,5 +4,6 @@ data class GameSettings(
     val soundEnabled: Boolean = true,
     val hapticEnabled: Boolean = false,
     val playerXName: String = "Player X",
-    val playerOName: String = "Player O"
+    val playerOName: String = "Player O",
+    val humanSymbol: HumanSymbol = HumanSymbol.X
 )

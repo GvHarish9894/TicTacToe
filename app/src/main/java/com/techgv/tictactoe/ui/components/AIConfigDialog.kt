@@ -39,6 +39,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.ui.theme.ButtonShape
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.DarkGreen500
@@ -50,11 +51,12 @@ import com.techgv.tictactoe.ui.theme.TextSecondary
 fun AIConfigDialog(
     visible: Boolean,
     onDismiss: () -> Unit,
-    onStartGame: (difficulty: AIDifficulty, firstPlayer: FirstPlayer) -> Unit,
+    onStartGame: (difficulty: AIDifficulty, firstPlayer: FirstPlayer, humanSymbol: HumanSymbol) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedDifficulty by remember { mutableStateOf(AIDifficulty.MEDIUM) }
     var selectedFirstPlayer by remember { mutableStateOf(FirstPlayer.HUMAN) }
+    var selectedSymbol by remember { mutableStateOf(HumanSymbol.X) }
 
     if (visible) {
         Dialog(
@@ -143,11 +145,42 @@ fun AIConfigDialog(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Symbol Selection Section
+                Text(
+                    text = stringResource(R.string.choose_your_symbol),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = TextSecondary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    HumanSymbol.entries.forEach { symbol ->
+                        SelectionChip(
+                            text = symbol.displayName,
+                            isSelected = selectedSymbol == symbol,
+                            onClick = { selectedSymbol = symbol },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Start Button
                 Button(
-                    onClick = { onStartGame(selectedDifficulty, selectedFirstPlayer) },
+                    onClick = {
+                        onStartGame(
+                            selectedDifficulty,
+                            selectedFirstPlayer,
+                            selectedSymbol
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),

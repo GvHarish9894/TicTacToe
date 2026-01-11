@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.ui.components.AIConfigDialog
 import com.techgv.tictactoe.ui.components.ModeSelectionCard
 import com.techgv.tictactoe.ui.components.PlayerVsAIIcon
@@ -39,7 +40,7 @@ import com.techgv.tictactoe.ui.theme.TextSecondary
 
 @Composable
 fun GameModeScreen(
-    onStartGame: (GameMode, AIDifficulty?, FirstPlayer?) -> Unit,
+    onStartGame: (GameMode, AIDifficulty?, FirstPlayer?, HumanSymbol?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedMode by remember { mutableStateOf(GameMode.PLAYER_VS_PLAYER) }
@@ -99,7 +100,7 @@ fun GameModeScreen(
                         isEnabled = true,
                         onStartClick = {
                             selectedMode = GameMode.PLAYER_VS_PLAYER
-                            onStartGame(GameMode.PLAYER_VS_PLAYER, null, null)
+                            onStartGame(GameMode.PLAYER_VS_PLAYER, null, null, null)
                         }
                     )
 
@@ -125,9 +126,9 @@ fun GameModeScreen(
         AIConfigDialog(
             visible = showAIConfigDialog,
             onDismiss = { showAIConfigDialog = false },
-            onStartGame = { difficulty, firstPlayer ->
+            onStartGame = { difficulty, firstPlayer, humanSymbol ->
                 showAIConfigDialog = false
-                onStartGame(GameMode.PLAYER_VS_AI, difficulty, firstPlayer)
+                onStartGame(GameMode.PLAYER_VS_AI, difficulty, firstPlayer, humanSymbol)
             }
         )
     }

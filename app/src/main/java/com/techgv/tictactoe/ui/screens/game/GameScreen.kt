@@ -50,6 +50,7 @@ import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
 import com.techgv.tictactoe.data.model.GameResult
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.ui.components.GameBoard
 import com.techgv.tictactoe.ui.components.ResultDialog
 import com.techgv.tictactoe.ui.components.ScoreBoard
@@ -74,7 +75,15 @@ fun GameScreen(
     gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
     aiDifficulty: AIDifficulty? = null,
     firstPlayer: FirstPlayer = FirstPlayer.HUMAN,
-    viewModel: GameViewModel = koinViewModel { parametersOf(gameMode, aiDifficulty, firstPlayer) }
+    humanSymbol: HumanSymbol = HumanSymbol.X,
+    viewModel: GameViewModel = koinViewModel {
+        parametersOf(
+            gameMode,
+            aiDifficulty,
+            firstPlayer,
+            humanSymbol
+        )
+    }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val settings by viewModel.settings.collectAsState()
@@ -209,6 +218,8 @@ fun GameScreen(
                     ) {
                         TurnIndicator(
                             currentPlayer = gameState.currentPlayer,
+                            gameMode = gameMode,
+                            humanSymbol = humanSymbol,
                             playerXName = settings.playerXName,
                             playerOName = settings.playerOName
                         )
@@ -218,6 +229,8 @@ fun GameScreen(
                         ScoreBoard(
                             scoreX = gameState.scoreX,
                             scoreO = gameState.scoreO,
+                            gameMode = gameMode,
+                            humanSymbol = humanSymbol,
                             playerXName = settings.playerXName,
                             playerOName = settings.playerOName
                         )
@@ -280,6 +293,8 @@ fun GameScreen(
                 ) {
                     TurnIndicator(
                         currentPlayer = gameState.currentPlayer,
+                        gameMode = gameMode,
+                        humanSymbol = humanSymbol,
                         playerXName = settings.playerXName,
                         playerOName = settings.playerOName
                     )
@@ -287,6 +302,8 @@ fun GameScreen(
                     ScoreBoard(
                         scoreX = gameState.scoreX,
                         scoreO = gameState.scoreO,
+                        gameMode = gameMode,
+                        humanSymbol = humanSymbol,
                         playerXName = settings.playerXName,
                         playerOName = settings.playerOName
                     )
@@ -344,6 +361,8 @@ fun GameScreen(
                     viewModel.setShowResultDialog(false)
                     onNavigateBack()
                 },
+                gameMode = gameMode,
+                humanSymbol = humanSymbol,
                 playerXName = settings.playerXName,
                 playerOName = settings.playerOName
             )

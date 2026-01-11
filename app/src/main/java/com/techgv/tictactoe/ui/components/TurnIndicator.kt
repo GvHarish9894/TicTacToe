@@ -22,15 +22,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.techgv.tictactoe.R
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.data.model.Player
+import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.DarkGreen600
 import com.techgv.tictactoe.ui.theme.TurnIndicatorShape
+import com.techgv.tictactoe.util.PlayerDisplayNames
 
 @Composable
 fun TurnIndicator(
     currentPlayer: Player,
     modifier: Modifier = Modifier,
+    gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
+    humanSymbol: HumanSymbol = HumanSymbol.X,
     playerXName: String = "Player X",
     playerOName: String = "Player O"
 ) {
@@ -43,11 +48,10 @@ fun TurnIndicator(
         label = "dot_color"
     )
 
-    val displayName = when (currentPlayer) {
-        Player.X -> playerXName
-        Player.O -> playerOName
-        Player.NONE -> ""
-    }
+    // Get display name based on game mode
+    val displayName = PlayerDisplayNames.getDisplayName(
+        currentPlayer, gameMode, humanSymbol, playerXName, playerOName
+    )
 
     Row(
         modifier = modifier

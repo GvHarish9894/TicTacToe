@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.techgv.tictactoe.data.model.GameSettings
+import com.techgv.tictactoe.data.model.HumanSymbol
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -20,14 +21,22 @@ class SettingsRepository(private val context: Context) {
         val HAPTIC_ENABLED = booleanPreferencesKey("haptic_enabled")
         val PLAYER_X_NAME = stringPreferencesKey("player_x_name")
         val PLAYER_O_NAME = stringPreferencesKey("player_o_name")
+        val HUMAN_SYMBOL = stringPreferencesKey("human_symbol")
     }
 
     val settings: Flow<GameSettings> = context.settingsDataStore.data.map { preferences ->
+        val humanSymbolStr = preferences[PreferencesKeys.HUMAN_SYMBOL] ?: "X"
+        val humanSymbol = when (humanSymbolStr) {
+            "O" -> HumanSymbol.O
+            else -> HumanSymbol.X
+        }
+
         GameSettings(
             soundEnabled = preferences[PreferencesKeys.SOUND_ENABLED] ?: true,
             hapticEnabled = preferences[PreferencesKeys.HAPTIC_ENABLED] ?: false,
             playerXName = preferences[PreferencesKeys.PLAYER_X_NAME] ?: "Player X",
-            playerOName = preferences[PreferencesKeys.PLAYER_O_NAME] ?: "Player O"
+            playerOName = preferences[PreferencesKeys.PLAYER_O_NAME] ?: "Player O",
+            humanSymbol = humanSymbol
         )
     }
 
@@ -52,6 +61,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun updatePlayerOName(name: String) {
         context.settingsDataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_O_NAME] = name.ifBlank { "Player O" }
+        }
+    }
+
+    suspend fun updateHumanSymbol(symbol: HumanSymbol) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[PreferencesKeys.HUMAN_SYMBOL] = symbol.displayName
         }
     }
 

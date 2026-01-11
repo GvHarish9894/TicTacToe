@@ -5,23 +5,29 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.techgv.tictactoe.analytics.AnalyticsHelper
+import com.techgv.tictactoe.analytics.AnalyticsValues
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.ui.screens.game.GameScreen
 import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.screens.gamemode.GameModeScreen
 import com.techgv.tictactoe.ui.screens.settings.SettingsScreen
 import com.techgv.tictactoe.ui.screens.splash.SplashScreen
+import org.koin.compose.koinInject
 
 @Composable
 fun TicTacToeNavGraph(
     navController: NavHostController,
-    startDestination: String = Screen.Splash.route
+    startDestination: String = Screen.Splash.route,
+    analyticsHelper: AnalyticsHelper = koinInject()
 ) {
     NavHost(
         navController = navController,
@@ -34,8 +40,19 @@ fun TicTacToeNavGraph(
                 fadeOut(animationSpec = tween(AnimationDuration))
             }
         ) {
+            LaunchedEffect(Unit) {
+                analyticsHelper.logScreenView(
+                    screenName = AnalyticsValues.SCREEN_SPLASH,
+                    screenClass = "SplashScreen"
+                )
+            }
+
             SplashScreen(
                 onNavigateToGameMode = {
+                    analyticsHelper.logNavigateForward(
+                        fromScreen = AnalyticsValues.SCREEN_SPLASH,
+                        toScreen = AnalyticsValues.SCREEN_GAME_MODE
+                    )
                     navController.navigate(Screen.GameMode.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
@@ -62,13 +79,31 @@ fun TicTacToeNavGraph(
                 )
             }
         ) {
+            LaunchedEffect(Unit) {
+                analyticsHelper.logScreenView(
+                    screenName = AnalyticsValues.SCREEN_GAME_MODE,
+                    screenClass = "GameModeScreen"
+                )
+            }
+
             GameModeScreen(
-                onStartGame = { gameMode, difficulty, firstPlayer ->
+                onStartGame = { gameMode, difficulty, firstPlayer, humanSymbol ->
+                    // Log game mode selection
+                    analyticsHelper.logGameModeSelected(gameMode)
+                    difficulty?.let { analyticsHelper.logAIDifficultySelected(it) }
+                    firstPlayer?.let { analyticsHelper.logFirstPlayerSelected(it) }
+
+                    analyticsHelper.logNavigateForward(
+                        fromScreen = AnalyticsValues.SCREEN_GAME_MODE,
+                        toScreen = AnalyticsValues.SCREEN_GAME
+                    )
+
                     navController.navigate(
                         Screen.Game.createRoute(
                             gameMode = gameMode.name,
                             difficulty = difficulty?.name ?: "NONE",
-                            firstPlayer = firstPlayer?.name ?: "HUMAN"
+                            firstPlayer = firstPlayer?.name ?: "HUMAN",
+                            humanSymbol = humanSymbol?.displayName ?: "X"
                         )
                     )
                 }
@@ -81,7 +116,8 @@ fun TicTacToeNavGraph(
             arguments = listOf(
                 navArgument("gameMode") { type = NavType.StringType },
                 navArgument("difficulty") { type = NavType.StringType },
-                navArgument("firstPlayer") { type = NavType.StringType }
+                navArgument("firstPlayer") { type = NavType.StringType },
+                navArgument("humanSymbol") { type = NavType.StringType }
             ),
             enterTransition = {
                 slideIntoContainer(
@@ -108,6 +144,13 @@ fun TicTacToeNavGraph(
                 )
             }
         ) { backStackEntry ->
+            LaunchedEffect(Unit) {
+                analyticsHelper.logScreenView(
+                    screenName = AnalyticsValues.SCREEN_GAME,
+                    screenClass = "GameScreen"
+                )
+            }
+
             val gameMode = GameMode.valueOf(
                 backStackEntry.arguments?.getString("gameMode") ?: "PLAYER_VS_PLAYER"
             )
@@ -117,13 +160,32 @@ fun TicTacToeNavGraph(
             val firstPlayer = backStackEntry.arguments?.getString("firstPlayer")?.let {
                 FirstPlayer.valueOf(it)
             } ?: FirstPlayer.HUMAN
+            val humanSymbol = backStackEntry.arguments?.getString("humanSymbol")?.let {
+                when (it) {
+                    "O" -> HumanSymbol.O
+                    else -> HumanSymbol.X
+                }
+            } ?: HumanSymbol.X
 
             GameScreen(
                 gameMode = gameMode,
                 aiDifficulty = difficulty,
                 firstPlayer = firstPlayer,
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
+                humanSymbol = humanSymbol,
+                onNavigateBack = {
+                    analyticsHelper.logNavigateBack(
+                        fromScreen = AnalyticsValues.SCREEN_GAME,
+                        toScreen = AnalyticsValues.SCREEN_GAME_MODE
+                    )
+                    navController.popBackStack()
+                },
+                onNavigateToSettings = {
+                    analyticsHelper.logNavigateForward(
+                        fromScreen = AnalyticsValues.SCREEN_GAME,
+                        toScreen = AnalyticsValues.SCREEN_SETTINGS
+                    )
+                    navController.navigate(Screen.Settings.route)
+                }
             )
         }
 
@@ -149,7 +211,22 @@ fun TicTacToeNavGraph(
                 )
             }
         ) {
-            SettingsScreen(onBackPress = { navController.popBackStack() })
+            LaunchedEffect(Unit) {
+                analyticsHelper.logScreenView(
+                    screenName = AnalyticsValues.SCREEN_SETTINGS,
+                    screenClass = "SettingsScreen"
+                )
+            }
+
+            SettingsScreen(
+                onBackPress = {
+                    analyticsHelper.logNavigateBack(
+                        fromScreen = AnalyticsValues.SCREEN_SETTINGS,
+                        toScreen = AnalyticsValues.SCREEN_GAME
+                    )
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

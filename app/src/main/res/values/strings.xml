@@ -53,6 +53,7 @@
     <string name="ai_config_title">AI Settings</string>
     <string name="select_difficulty">Difficulty</string>
     <string name="who_goes_first">Who goes first?</string>
+    <string name="choose_your_symbol">Choose Your Symbol</string>
     <string name="start_game">Start Game</string>
     <string name="close">Close</string>
 </resources>

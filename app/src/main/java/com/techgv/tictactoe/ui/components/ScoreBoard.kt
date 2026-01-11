@@ -14,17 +14,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.data.model.Player
+import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.theme.TextSecondary
+import com.techgv.tictactoe.util.PlayerDisplayNames
 
 @Composable
 fun ScoreBoard(
     scoreX: Int,
     scoreO: Int,
     modifier: Modifier = Modifier,
+    gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
+    humanSymbol: HumanSymbol = HumanSymbol.X,
     playerXName: String = "Player X",
     playerOName: String = "Player O"
 ) {
+    // Get display names based on game mode
+    val displayNameX = PlayerDisplayNames.getDisplayName(
+        Player.X, gameMode, humanSymbol, playerXName, playerOName
+    )
+    val displayNameO = PlayerDisplayNames.getDisplayName(
+        Player.O, gameMode, humanSymbol, playerXName, playerOName
+    )
+
     Row(
         modifier = modifier.padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.Center,
@@ -33,7 +46,7 @@ fun ScoreBoard(
         // Player X score
         ScoreColumn(
             score = scoreX,
-            label = playerXName.uppercase(),
+            label = displayNameX.uppercase(),
             player = Player.X
         )
 
@@ -49,7 +62,7 @@ fun ScoreBoard(
         // Player O score
         ScoreColumn(
             score = scoreO,
-            label = playerOName.uppercase(),
+            label = displayNameO.uppercase(),
             player = Player.O
         )
     }

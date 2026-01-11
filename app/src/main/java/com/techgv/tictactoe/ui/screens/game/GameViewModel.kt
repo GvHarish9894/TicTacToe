@@ -2,10 +2,14 @@ package com.techgv.tictactoe.ui.screens.game
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.perf.metrics.Trace
+import com.techgv.tictactoe.analytics.AnalyticsHelper
+import com.techgv.tictactoe.analytics.PerformanceHelper
 import com.techgv.tictactoe.data.model.AIDifficulty
 import com.techgv.tictactoe.data.model.FirstPlayer
 import com.techgv.tictactoe.data.model.GameResult
 import com.techgv.tictactoe.data.model.GameSettings
+import com.techgv.tictactoe.data.model.HumanSymbol
 import com.techgv.tictactoe.data.model.Player
 import com.techgv.tictactoe.data.repository.SettingsRepository
 import com.techgv.tictactoe.domain.GameLogic
@@ -27,9 +31,12 @@ import kotlin.random.Random
 
 class GameViewModel(
     settingsRepository: SettingsRepository,
-    aiDifficulty: AIDifficulty? = null,
+    private val analyticsHelper: AnalyticsHelper,
+    private val performanceHelper: PerformanceHelper,
+    private val aiDifficulty: AIDifficulty? = null,
     private val gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
-    private val firstPlayer: FirstPlayer = FirstPlayer.HUMAN
+    private val firstPlayer: FirstPlayer = FirstPlayer.HUMAN,
+    private val humanSymbol: HumanSymbol = HumanSymbol.X
 ) : ViewModel() {
 
     // Combined UI state
@@ -49,9 +56,37 @@ class GameViewModel(
 
     // AI configuration
     private val aiStrategy: AIStrategy? = aiDifficulty?.let { AIStrategyFactory.create(it) }
-    private val aiPlayer = Player.O // AI always plays as O
+
+    // Compute human and AI players based on symbol choice
+    private val humanPlayer: Player = humanSymbol.symbol
+    private val aiPlayer: Player = humanSymbol.symbol.opposite()
+
+    // Performance trace for game duration
+    private var gameTrace: Trace? = null
 
     init {
+        // Determine starting player based on who goes first and their symbols
+        val startingPlayer = when {
+            gameMode == GameMode.PLAYER_VS_PLAYER -> Player.X
+            firstPlayer == FirstPlayer.HUMAN -> humanPlayer
+            else -> aiPlayer
+        }
+
+        // Initialize game state with correct starting player
+        _uiState.update { state ->
+            state.copy(
+                gameState = state.gameState.copy(
+                    currentPlayer = startingPlayer
+                )
+            )
+        }
+
+        // Log game started event
+        analyticsHelper.logGameStarted(gameMode, aiDifficulty, firstPlayer)
+
+        // Start performance trace
+        gameTrace = performanceHelper.startGameTrace()
+
         // If AI goes first, trigger AI move
         if (gameMode == GameMode.PLAYER_VS_AI && firstPlayer == FirstPlayer.AI) {
             triggerAIMove()
@@ -66,6 +101,13 @@ class GameViewModel(
             currentGameState.isGameOver ||
                 !GameLogic.isValidMove(currentGameState.board, index)
 
+        // Log invalid move attempt
+        if (!currentGameState.isGameOver &&
+            !GameLogic.isValidMove(currentGameState.board, index)
+        ) {
+            analyticsHelper.logInvalidMoveAttempt(index, currentGameState.currentPlayer)
+        }
+
         // Ignore clicks if:
         // - Game is over
         // - Cell is occupied
@@ -76,7 +118,7 @@ class GameViewModel(
         }
 
         // Make the human move
-        makeMove(index, currentGameState.currentPlayer)
+        makeMove(index, currentGameState.currentPlayer, isAIMove = false)
 
         // Trigger AI response if game is still in progress
         val newGameState = _uiState.value.gameState
@@ -85,16 +127,73 @@ class GameViewModel(
         }
     }
 
-    private fun makeMove(index: Int, player: Player) {
+    private fun makeMove(index: Int, player: Player, isAIMove: Boolean = false) {
         val currentGameState = _uiState.value.gameState
+        val moveNumber = currentGameState.board.count { it != Player.NONE } + 1
+
+        // Log player move
+        if (!isAIMove) {
+            analyticsHelper.logPlayerMove(
+                cellIndex = index,
+                player = player,
+                moveNumber = moveNumber
+            )
+        }
+
         val newBoard = GameLogic.makeMove(currentGameState.board, index, player)
         val gameResult = GameLogic.checkGameResult(newBoard)
 
-        // Calculate duration if game is won
-        val duration = if (gameResult is GameResult.Win) {
+        // Calculate duration if game is over
+        val duration = if (gameResult is GameResult.Win || gameResult is GameResult.Draw) {
             (System.currentTimeMillis() - currentGameState.gameStartTime) / 1000
         } else {
             null
+        }
+
+        // Log game result
+        when (gameResult) {
+            is GameResult.Win -> {
+                analyticsHelper.logGameWon(
+                    winner = gameResult.winner,
+                    durationSeconds = duration ?: 0,
+                    winningLine = gameResult.winningLine,
+                    moveCount = moveNumber,
+                    scoreX = if (gameResult.winner == Player.X) {
+                        currentGameState.scoreX + 1
+                    } else {
+                        currentGameState.scoreX
+                    },
+                    scoreO = if (gameResult.winner == Player.O) {
+                        currentGameState.scoreO + 1
+                    } else {
+                        currentGameState.scoreO
+                    }
+                )
+                // Stop performance trace
+                gameTrace?.let { trace ->
+                    performanceHelper.stopGameTrace(
+                        trace = trace,
+                        winner = gameResult.winner.name,
+                        moveCount = moveNumber
+                    )
+                }
+                gameTrace = null
+            }
+
+            is GameResult.Draw -> {
+                analyticsHelper.logGameDraw(
+                    durationSeconds = duration ?: 0,
+                    moveCount = moveNumber,
+                    scoreX = currentGameState.scoreX,
+                    scoreO = currentGameState.scoreO
+                )
+                // Stop performance trace
+                gameTrace?.stop()
+                gameTrace = null
+            }
+
+            else -> { /* Game in progress */
+            }
         }
 
         // Update scores if there's a winner
@@ -129,15 +228,39 @@ class GameViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isAIThinking = true) }
 
+            val startTime = System.currentTimeMillis()
+
             // Add delay for natural feel (300-500ms)
             delay(Random.nextLong(300, 500))
 
             val currentGameState = _uiState.value.gameState
             if (currentGameState.gameResult is GameResult.InProgress) {
                 aiStrategy?.let { strategy ->
-                    val aiMove = strategy.findBestMove(currentGameState.board, aiPlayer)
+                    val moveNumber = currentGameState.board.count { it != Player.NONE } + 1
+
+                    // Trace AI move calculation with performance monitoring
+                    val aiMove = if (aiDifficulty != null) {
+                        performanceHelper.traceAIMove(aiDifficulty.name.lowercase()) {
+                            strategy.findBestMove(currentGameState.board, aiPlayer)
+                        }
+                    } else {
+                        strategy.findBestMove(currentGameState.board, aiPlayer)
+                    }
+
                     if (aiMove >= 0) {
-                        makeMove(aiMove, aiPlayer)
+                        val thinkingTime = System.currentTimeMillis() - startTime
+
+                        // Log AI move
+                        aiDifficulty?.let { difficulty ->
+                            analyticsHelper.logAIMove(
+                                difficulty = difficulty,
+                                cellIndex = aiMove,
+                                thinkingTimeMs = thinkingTime,
+                                moveNumber = moveNumber
+                            )
+                        }
+
+                        makeMove(aiMove, aiPlayer, isAIMove = true)
                         // Emit event for sound/haptic feedback
                         _aiMoveEvent.emit(Unit)
                     }
@@ -153,11 +276,33 @@ class GameViewModel(
     }
 
     fun resetGame() {
+        val currentState = _uiState.value.gameState
+
+        // Log reset event
+        analyticsHelper.logGameReset(
+            scoreX = currentState.scoreX,
+            scoreO = currentState.scoreO
+        )
+
+        // Stop any active trace
+        gameTrace?.stop()
+        gameTrace = null
+
+        // Start new game trace
+        gameTrace = performanceHelper.startGameTrace()
+
+        // Determine starting player based on who goes first and their symbols
+        val startingPlayer = when {
+            gameMode == GameMode.PLAYER_VS_PLAYER -> Player.X
+            firstPlayer == FirstPlayer.HUMAN -> humanPlayer
+            else -> aiPlayer
+        }
+
         _uiState.update { state ->
             state.copy(
                 gameState = state.gameState.copy(
                     board = GameLogic.emptyBoard(),
-                    currentPlayer = Player.X,
+                    currentPlayer = startingPlayer,
                     gameResult = GameResult.InProgress,
                     gameStartTime = System.currentTimeMillis(),
                     lastWinDuration = null
@@ -170,5 +315,12 @@ class GameViewModel(
         if (gameMode == GameMode.PLAYER_VS_AI && firstPlayer == FirstPlayer.AI) {
             triggerAIMove()
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Clean up any active traces
+        gameTrace?.stop()
+        gameTrace = null
     }
 }

@@ -31,12 +31,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.techgv.tictactoe.R
 import com.techgv.tictactoe.data.model.GameResult
-import com.techgv.tictactoe.data.model.Player
+import com.techgv.tictactoe.data.model.HumanSymbol
+import com.techgv.tictactoe.ui.screens.gamemode.GameMode
 import com.techgv.tictactoe.ui.theme.ButtonShape
 import com.techgv.tictactoe.ui.theme.CardBackground
 import com.techgv.tictactoe.ui.theme.DialogShape
 import com.techgv.tictactoe.ui.theme.GreenAccent
 import com.techgv.tictactoe.ui.theme.TextSecondary
+import com.techgv.tictactoe.util.PlayerDisplayNames
 
 @Composable
 fun ResultDialog(
@@ -47,6 +49,8 @@ fun ResultDialog(
     onPlayAgain: () -> Unit,
     onExitGame: () -> Unit,
     modifier: Modifier = Modifier,
+    gameMode: GameMode = GameMode.PLAYER_VS_PLAYER,
+    humanSymbol: HumanSymbol = HumanSymbol.X,
     playerXName: String = "Player X",
     playerOName: String = "Player O"
 ) {
@@ -60,6 +64,8 @@ fun ResultDialog(
                 winDurationSeconds = winDurationSeconds,
                 onPlayAgain = onPlayAgain,
                 onExitGame = onExitGame,
+                gameMode = gameMode,
+                humanSymbol = humanSymbol,
                 playerXName = playerXName,
                 playerOName = playerOName,
                 modifier = modifier
@@ -76,6 +82,8 @@ private fun ResultCard(
     winDurationSeconds: Long?,
     onPlayAgain: () -> Unit,
     onExitGame: () -> Unit,
+    gameMode: GameMode,
+    humanSymbol: HumanSymbol,
     playerXName: String,
     playerOName: String,
     modifier: Modifier = Modifier
@@ -110,11 +118,9 @@ private fun ResultCard(
 
         // Result title
         val winnerName = when (gameResult) {
-            is GameResult.Win -> when (gameResult.winner) {
-                Player.X -> playerXName
-                Player.O -> playerOName
-                Player.NONE -> ""
-            }
+            is GameResult.Win -> PlayerDisplayNames.getDisplayName(
+                gameResult.winner, gameMode, humanSymbol, playerXName, playerOName
+            )
             else -> ""
         }
         val title = when (gameResult) {

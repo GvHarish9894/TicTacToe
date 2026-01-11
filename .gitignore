@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Google Services (contains API keys)
+google-services.json
+
+# claude file
+CLAUDE.md
+IMPLEMENTATION_SUMMARY.md

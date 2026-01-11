@@ -11,13 +11,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.compose.rememberNavController
+import com.techgv.tictactoe.analytics.AnalyticsHelper
 import com.techgv.tictactoe.ui.navigation.TicTacToeNavGraph
 import com.techgv.tictactoe.ui.theme.DarkGreen900
 import com.techgv.tictactoe.ui.theme.TicTacToeTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    private val analyticsHelper: AnalyticsHelper by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Log app open
+        analyticsHelper.logAppOpen()
 
         // Lock phones to portrait, allow tablets to rotate
         val isTablet = resources.configuration.smallestScreenWidthDp >= 600
