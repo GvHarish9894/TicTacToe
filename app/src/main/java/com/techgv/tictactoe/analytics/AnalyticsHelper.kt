@@ -13,6 +13,7 @@ import com.techgv.tictactoe.ui.screens.gamemode.GameMode
  * Central helper class for Firebase Analytics integration.
  * Provides type-safe, convenient methods for logging analytics events.
  */
+@Suppress("TooManyFunctions")
 class AnalyticsHelper {
 
     private val analytics: FirebaseAnalytics = Firebase.analytics

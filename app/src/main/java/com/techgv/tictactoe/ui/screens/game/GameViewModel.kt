@@ -131,7 +131,6 @@ class GameViewModel(
         val currentGameState = _uiState.value.gameState
         val moveNumber = currentGameState.board.count { it != Player.NONE } + 1
 
-        // Log player move
         if (!isAIMove) {
             analyticsHelper.logPlayerMove(
                 cellIndex = index,
@@ -142,15 +141,43 @@ class GameViewModel(
 
         val newBoard = GameLogic.makeMove(currentGameState.board, index, player)
         val gameResult = GameLogic.checkGameResult(newBoard)
+        val duration = calculateGameDuration(gameResult, currentGameState.gameStartTime)
 
-        // Calculate duration if game is over
-        val duration = if (gameResult is GameResult.Win || gameResult is GameResult.Draw) {
-            (System.currentTimeMillis() - currentGameState.gameStartTime) / 1000
+        trackGameResult(gameResult, duration, moveNumber, currentGameState)
+
+        val isWinX = gameResult is GameResult.Win && gameResult.winner == Player.X
+        val isWinO = gameResult is GameResult.Win && gameResult.winner == Player.O
+        val newScoreX = currentGameState.scoreX + if (isWinX) 1 else 0
+        val newScoreO = currentGameState.scoreO + if (isWinO) 1 else 0
+
+        _uiState.update { state ->
+            state.copy(
+                gameState = state.gameState.copy(
+                    board = newBoard,
+                    currentPlayer = if (gameResult is GameResult.InProgress) player.opposite() else player,
+                    scoreX = newScoreX,
+                    scoreO = newScoreO,
+                    gameResult = gameResult,
+                    lastWinDuration = duration
+                )
+            )
+        }
+    }
+
+    private fun calculateGameDuration(gameResult: GameResult, gameStartTime: Long): Long? {
+        return if (gameResult is GameResult.Win || gameResult is GameResult.Draw) {
+            (System.currentTimeMillis() - gameStartTime) / 1000
         } else {
             null
         }
+    }
 
-        // Log game result
+    private fun trackGameResult(
+        gameResult: GameResult,
+        duration: Long?,
+        moveNumber: Int,
+        currentGameState: com.techgv.tictactoe.data.model.GameState
+    ) {
         when (gameResult) {
             is GameResult.Win -> {
                 analyticsHelper.logGameWon(
@@ -158,18 +185,9 @@ class GameViewModel(
                     durationSeconds = duration ?: 0,
                     winningLine = gameResult.winningLine,
                     moveCount = moveNumber,
-                    scoreX = if (gameResult.winner == Player.X) {
-                        currentGameState.scoreX + 1
-                    } else {
-                        currentGameState.scoreX
-                    },
-                    scoreO = if (gameResult.winner == Player.O) {
-                        currentGameState.scoreO + 1
-                    } else {
-                        currentGameState.scoreO
-                    }
+                    scoreX = currentGameState.scoreX + if (gameResult.winner == Player.X) 1 else 0,
+                    scoreO = currentGameState.scoreO + if (gameResult.winner == Player.O) 1 else 0
                 )
-                // Stop performance trace
                 gameTrace?.let { trace ->
                     performanceHelper.stopGameTrace(
                         trace = trace,
@@ -179,7 +197,6 @@ class GameViewModel(
                 }
                 gameTrace = null
             }
-
             is GameResult.Draw -> {
                 analyticsHelper.logGameDraw(
                     durationSeconds = duration ?: 0,
@@ -187,41 +204,11 @@ class GameViewModel(
                     scoreX = currentGameState.scoreX,
                     scoreO = currentGameState.scoreO
                 )
-                // Stop performance trace
                 gameTrace?.stop()
                 gameTrace = null
             }
-
-            else -> {
-                /* Game in progress */
+            else -> { /* Game in progress */
             }
-        }
-
-        // Update scores if there's a winner
-        val (newScoreX, newScoreO) = when (gameResult) {
-            is GameResult.Win -> when (gameResult.winner) {
-                Player.X -> currentGameState.scoreX + 1 to currentGameState.scoreO
-                Player.O -> currentGameState.scoreX to currentGameState.scoreO + 1
-                Player.NONE -> currentGameState.scoreX to currentGameState.scoreO
-            }
-            else -> currentGameState.scoreX to currentGameState.scoreO
-        }
-
-        _uiState.update { state ->
-            state.copy(
-                gameState = state.gameState.copy(
-                    board = newBoard,
-                    currentPlayer = if (gameResult is GameResult.InProgress) {
-                        player.opposite()
-                    } else {
-                        player
-                    },
-                    scoreX = newScoreX,
-                    scoreO = newScoreO,
-                    gameResult = gameResult,
-                    lastWinDuration = duration
-                )
-            )
         }
     }
 
