@@ -38,8 +38,8 @@ naming:
     constantPattern: '[A-Z][A-Za-z0-9]*'
 
 style:
-    DestructuringDeclarationWithTooManyEntries:
-        maxDestructuringEntries: 4
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 4
   MagicNumber:
     active: false
   MaxLineLength:
