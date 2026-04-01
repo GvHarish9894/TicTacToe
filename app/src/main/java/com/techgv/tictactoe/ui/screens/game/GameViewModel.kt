@@ -192,7 +192,8 @@ class GameViewModel(
                 gameTrace = null
             }
 
-            else -> { /* Game in progress */
+            else -> {
+                /* Game in progress */
             }
         }
 
